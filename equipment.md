@@ -1,7 +1,9 @@
 ## Equipment
 
 Alexander Guglenko:
-Raspberry Pi 4, 
+  1. Raspberry Pi 4
+  2. Adafruit Mini GPS PA1010D Module
+  3. Simple momentary switch button
 
 
 
