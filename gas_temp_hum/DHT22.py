@@ -1,14 +1,25 @@
 import time
 import board
 import adafruit_dht
+import pyrebase
  
 # Initial the dht device, with data pin connected to:
-dhtDevice = adafruit_dht.DHT22(board.D4)
+dhtDevice = adafruit_dht.DHT22(board.D4, use_pulseio=False)
  
 # you can pass DHT22 use_pulseio=False if you wouldn't like to use pulseio.
 # This may be necessary on a Linux single board computer like the Raspberry Pi,
 # but it will not work in CircuitPython.
 # dhtDevice = adafruit_dht.DHT22(board.D18, use_pulseio=False)
+#firebase config
+config = {
+    "apiKey": "AIzaSyAFwmKxtdjWbppX7tGiVKQEvzP_18Tc6oo",
+    "authDomain": "smart-home-monitor-5fbbb.firebaseapp.com",
+    "databaseURL": "https://smart-home-monitor-5fbbb.firebaseio.com",
+    "storageBucket": "smart-home-monitor-5fbbb.appspot.com",
+    "serviceAccount": "/home/pi/Documents/SHMS-Backend/gas_temp_hum/smart-home-monitor-5fbbb-firebase-adminsdk-m63v5-d37d42dd3d.json"
+}
+firebase = pyrebase.initialize_app(config)
+db = firebase.database()
  
 while True:
     try:
@@ -21,6 +32,12 @@ while True:
                 temperature_f, temperature_c, humidity
             )
         )
+        db.child("users/a82939c4/devices/SHMS-NHjak3u7").update({
+            "temperature":temperature_c
+        })
+        db.child("users/a82939c4/devices/SHMS-NHjak3u7").update({
+            "humidity":humidity
+        })
  
     except RuntimeError as error:
         # Errors happen fairly often, DHT's are hard to read, just keep going

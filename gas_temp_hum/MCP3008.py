@@ -29,7 +29,7 @@ config = {
 firebase = pyrebase.initialize_app(config)
 db = firebase.database()
 while 1:
-    volt = round(chan.voltage, 2)
+    volt = round(chan.voltage, 2) * 100
     print('Raw ADC Value: ', chan.value)
 #     print('ADC Voltage: ' + str(chan.voltage) + 'V')
     print('ADC Voltage: ' + str(volt) + 'V')
