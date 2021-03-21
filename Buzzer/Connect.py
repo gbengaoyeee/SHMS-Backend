@@ -1,5 +1,10 @@
 import pyrebase
 import os
+import serial
+import io
+ser=serial.Serial("/dev/ttyACM4",2400)
+sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
+
 config={"apiKey": "AIzaSyAFwmKxtdjWbppX7tGiVKQEvzP_18Tc6oo",
     "authDomain": "smart-home-monitor-5fbbb.firebaseapp.com",
     "databaseURL": "https://smart-home-monitor-5fbbb.firebaseio.com",
@@ -22,20 +27,31 @@ data = {
 }
 duration = 1  # seconds
 freq = 440  # Hz
+re = 2
 while 1:
 # Pass the user's idToken to the push method
 #results = db.child("users").push(data, user['idToken'])
-	temp = db.child("temperature").get()
-	reset = db.child("reset").child("state").get()
-	if reset.val() == '0':
+	temp = db.child("users").child("a82939c4").child("devices").child("SHMS-NHjak3u7").child("temperature").get()
+	reset = db.child("users").child("a82939c4").child("devices").child("SHMS-NHjak3u7").child("reset").get()
+	print(re)
+	if reset.val() == 0:
 		if temp.val() > 200:
-			f = open ("temperature.txt", "w")
-			f.write("1")
-			f.close()
-			os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq))
+			if re!= 1:
+				sio.write("1\n")
+				sio.flush()
+				re = 1
+			#hello1 = sio.readline()
 		else:
-			f = open ("temperature.txt", "w")
-			f.write("0")
-			f.close()
+			if re!= 0:
+				sio.write("0\n")
+				sio.flush()
+				re = 0
+			#hello2 = sio.readline()		
 	else:
-		print("")
+		if re!=0:
+			sio.write("0\n")
+			sio.flush()
+			re = 0
+		#hello3 = sio.readline()
+
+
