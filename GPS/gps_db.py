@@ -8,12 +8,16 @@ import pyrebase
 
 import adafruit_gps
 
-config={"apiKey": "",
-    "authDomain": "",
-    "databaseURL": "",
-    "storageBucket": ""}
+#firebase config setup
+with open('../firebase_config.json', 'r') as config_file:
+    config_data = config_file.read()
 
-firebase = pyrebase.initialize_app(config)
+# parse config data
+config_creds = json.loads(config_data)
+firebase = pyrebase.initialize_app(config_creds)
+
+# Get a reference to the database service
+db = firebase.database()
 
 # Get a reference to the auth service
 auth = firebase.auth()
@@ -21,8 +25,7 @@ auth = firebase.auth()
 # Log the user in
 user = auth.sign_in_with_email_and_password("", "")
 
-# Get a reference to the database service
-db = firebase.database()
+
 
 # data to save
 lat = {"value": "0"}
@@ -89,25 +92,31 @@ timestamp = time.monotonic()
 #        gps.send_command(b"PMTK605")  # request firmware version
 #        timestamp = time.monotonic()        
 
+# Device registration code
+DEVICE_REGISTRATION_CODE = "SHMS-NHjak3u7"
+
+device_attributes = db.child("devices").get().val()[DEVICE_REGISTRATION_CODE]
+DEVICE_OWNER = device_attributes["owner"] if "owner" in device_attributes else None
     
-while True:
-    # update lat and lon and wait 2 seconds
-    results = db.child("users").child("a82939c4").child("devices").child("SHMS-NHjak3u7").update({"lat": 43.63438,"lon": -79.54087})    
-    time.sleep(2)
-    
-    # update lat and lon and wait 2 seconds
-    results = db.child("users").child("a82939c4").child("devices").child("SHMS-NHjak3u7").update({"lat": 43.63464,"lon": -79.54126})    
-    time.sleep(2)
-    
-    # update lat and lon and wait 2 seconds
-    results = db.child("users").child("a82939c4").child("devices").child("SHMS-NHjak3u7").update({"lat": 43.63471,"lon": -79.54156})    
-    time.sleep(2)
-    
-    # update lat and lon and wait 2 seconds
-    results = db.child("users").child("a82939c4").child("devices").child("SHMS-NHjak3u7").update({"lat": 43.63464,"lon": -79.54126})    
-    time.sleep(2)
-    
-    # update lat and lon and wait 2 seconds
-    results = db.child("users").child("a82939c4").child("devices").child("SHMS-NHjak3u7").update({"lat": 43.63438,"lon": -79.54087})    
-    time.sleep(2)
+if DEVICE_OWNER != None:
+    while True:
+        # update lat and lon and wait 2 seconds
+        results = db.child("users/"+DEVICE_OWNER+"/devices/"+DEVICE_REGISTRATION_CODE).update({"lat": 43.63438,"lon": -79.54087})    
+        time.sleep(2)
+        
+        # update lat and lon and wait 2 seconds
+        results = db.child("users/"+DEVICE_OWNER+"/devices/"+DEVICE_REGISTRATION_CODE).update({"lat": 43.63464,"lon": -79.54126})    
+        time.sleep(2)
+        
+        # update lat and lon and wait 2 seconds
+        results = db.child("users/"+DEVICE_OWNER+"/devices/"+DEVICE_REGISTRATION_CODE).update({"lat": 43.63471,"lon": -79.54156})    
+        time.sleep(2)
+        
+        # update lat and lon and wait 2 seconds
+        results = db.child("users/"+DEVICE_OWNER+"/devices/"+DEVICE_REGISTRATION_CODE).update({"lat": 43.63464,"lon": -79.54126})    
+        time.sleep(2)
+        
+        # update lat and lon and wait 2 seconds
+        results = db.child("users").child("a82939c4").child("devices").child("SHMS-NHjak3u7").update({"lat": 43.63438,"lon": -79.54087})    
+        time.sleep(2)
         

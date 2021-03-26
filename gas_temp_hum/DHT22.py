@@ -10,44 +10,50 @@ dhtDevice = adafruit_dht.DHT22(board.D4, use_pulseio=False)
 # This may be necessary on a Linux single board computer like the Raspberry Pi,
 # but it will not work in CircuitPython.
 # dhtDevice = adafruit_dht.DHT22(board.D18, use_pulseio=False)
-#firebase config
-config = {
-    "apiKey": "AIzaSyAFwmKxtdjWbppX7tGiVKQEvzP_18Tc6oo",
-    "authDomain": "smart-home-monitor-5fbbb.firebaseapp.com",
-    "databaseURL": "https://smart-home-monitor-5fbbb.firebaseio.com",
-    "storageBucket": "smart-home-monitor-5fbbb.appspot.com",
-    "serviceAccount": "/home/pi/Documents/SHMS-Backend/gas_temp_hum/smart-home-monitor-5fbbb-firebase-adminsdk-m63v5-d37d42dd3d.json"
-}
-firebase = pyrebase.initialize_app(config)
+
+#firebase config setup
+with open('../firebase_config.json', 'r') as config_file:
+    config_data = config_file.read()
+
+# parse config data
+config_creds = json.loads(config_data)
+firebase = pyrebase.initialize_app(config_creds)
+
 db = firebase.database()
- 
-while True:
-    try:
-        # Print the values to the serial port
-        temperature_c = dhtDevice.temperature
-        temperature_f = temperature_c * (9 / 5) + 32
-        humidity = dhtDevice.humidity
-        print(
-            "Temp: {:.1f} F / {:.1f} C    Humidity: {}% ".format(
-                temperature_f, temperature_c, humidity
+
+# Device registration code
+DEVICE_REGISTRATION_CODE = "SHMS-NHjak3u7"
+device_attributes = db.child("devices").get().val()[DEVICE_REGISTRATION_CODE]
+DEVICE_OWNER = device_attributes["owner"] if "owner" in device_attributes else None
+
+if DEVICE_OWNER != None:
+    while True:
+        try:
+            # Print the values to the serial port
+            temperature_c = dhtDevice.temperature
+            temperature_f = temperature_c * (9 / 5) + 32
+            humidity = dhtDevice.humidity
+            print(
+                "Temp: {:.1f} F / {:.1f} C    Humidity: {}% ".format(
+                    temperature_f, temperature_c, humidity
+                )
             )
-        )
-        db.child("users/a82939c4/devices/SHMS-NHjak3u7").update({
-            "temperature":temperature_c
-        })
-        db.child("users/a82939c4/devices/SHMS-NHjak3u7").update({
-            "humidity":humidity
-        })
- 
-    except RuntimeError as error:
-        # Errors happen fairly often, DHT's are hard to read, just keep going
-        
-        print(error.args[0])
+            db.child("users/"+DEVICE_OWNER+"/devices/"+DEVICE_REGISTRATION_CODE).update({
+                "temperature":temperature_c
+            })
+            db.child("users/"+DEVICE_OWNER+"/devices/"+DEVICE_REGISTRATION_CODE).update({
+                "humidity":humidity
+            })
+     
+        except RuntimeError as error:
+            # Errors happen fairly often, DHT's are hard to read, just keep going
+            
+            print(error.args[0])
+            time.sleep(2.0)
+            continue
+        except Exception as error:
+            print("HERE")
+            dhtDevice.exit()
+            raise error
+     
         time.sleep(2.0)
-        continue
-    except Exception as error:
-        print("HERE")
-        dhtDevice.exit()
-        raise error
- 
-    time.sleep(2.0)
