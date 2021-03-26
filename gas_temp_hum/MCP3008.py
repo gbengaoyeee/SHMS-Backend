@@ -28,14 +28,23 @@ config = {
 }
 firebase = pyrebase.initialize_app(config)
 db = firebase.database()
-while 1:
-    volt = round(chan.voltage, 2) * 100
-    print('Raw ADC Value: ', chan.value)
-#     print('ADC Voltage: ' + str(chan.voltage) + 'V')
-    print('ADC Voltage: ' + str(volt) + 'V')
-    result = db.child("users/a82939c4/devices/SHMS-NHjak3u7").update({
-            "gas":volt
-        })
-    time.sleep(2.0)
+
+# Device registration code
+DEVICE_REGISTRATION_CODE = "SHMS-NHjak3u7"
+
+device_attributes = db.child("devices").get().val()[DEVICE_REGISTRATION_CODE]
+DEVICE_OWNER = device_attributes["owner"] if "owner" in device_attributes else None
+
+
+if DEVICE_OWNER != None:
+    while 1:
+        volt = round(chan.voltage, 2) * 100
+        print('Raw ADC Value: ', chan.value)
+        print('ADC Voltage: ' + str(volt) + 'V')
+        result = db.child("users/"+DEVICE_OWNER+"/devices/SHMS-NHjak3u7").update({
+                "gas":volt
+            })
+        
+        time.sleep(2.0)
     
     
