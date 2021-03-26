@@ -2,13 +2,13 @@ import pyrebase
 import os
 import serial
 import io
-ser=serial.Serial("/dev/ttyACM4",2400)
+ser=serial.Serial("/dev/ttyACM0",2400)
 sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
 
-config={"apiKey": "AIzaSyAFwmKxtdjWbppX7tGiVKQEvzP_18Tc6oo",
-    "authDomain": "smart-home-monitor-5fbbb.firebaseapp.com",
-    "databaseURL": "https://smart-home-monitor-5fbbb.firebaseio.com",
-    "storageBucket": "smart-home-monitor-5fbbb.appspot.com"}
+config={"apiKey": "",
+    "authDomain": "",
+    "databaseURL": "",
+    "storageBucket": ""}
 
 firebase = pyrebase.initialize_app(config)
 
@@ -16,7 +16,7 @@ firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
 
 # Log the user in
-user = auth.sign_in_with_email_and_password("nhung@gmail.com", "password")
+user = auth.sign_in_with_email_and_password("", "")
 
 # Get a reference to the database service
 db = firebase.database()
