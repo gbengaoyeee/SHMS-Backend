@@ -116,7 +116,4 @@ if DEVICE_OWNER != None:
         results = db.child("users/"+DEVICE_OWNER+"/devices/"+DEVICE_REGISTRATION_CODE).update({"lat": 43.63464,"lon": -79.54126})    
         time.sleep(2)
         
-        # update lat and lon and wait 2 seconds
-        results = db.child("users").child("a82939c4").child("devices").child("SHMS-NHjak3u7").update({"lat": 43.63438,"lon": -79.54087})    
-        time.sleep(2)
         
