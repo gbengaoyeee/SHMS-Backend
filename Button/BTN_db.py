@@ -24,7 +24,7 @@ firebase = pyrebase.initialize_app(config_creds)
 auth = firebase.auth()
 
 # Log the user in
-user = auth.sign_in_with_email_and_password("alex@gmail.com", "password")
+user = auth.sign_in_with_email_and_password("", "")
 
 # Get a reference to the database service
 db = firebase.database()
