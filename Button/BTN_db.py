@@ -2,48 +2,56 @@
 import sys
 import os
 import pyrebase
+import json
 from time import sleep
+
+
 
 try:
     import RPi.GPIO as GPIO
 except RuntimeError:
     print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
 
-PIN_18=18     #GPIO18  -- this LED is driven by GPIO 18.
-PIN_17=17     #GPIO17  -- as another example.
+#firebase config setup
+with open('firebase_config.json', 'r') as config_file:
+    config_data = config_file.read()
 
-#details for firebase database
-config={"apiKey": "",
-    "authDomain": "",
-    "databaseURL": "",
-    "storageBucket": ""}
-
-firebase = pyrebase.initialize_app(config)
+# parse config data
+config_creds = json.loads(config_data)
+firebase = pyrebase.initialize_app(config_creds)
 
 # Get a reference to the auth service
 auth = firebase.auth()
+
 # Log the user in
 user = auth.sign_in_with_email_and_password("", "")
+
 # Get a reference to the database service
 db = firebase.database()
 
+# Device registration code
+DEVICE_REGISTRATION_CODE = "SHMS-NHjak3u7"
+
+#grab owner info
+device_attributes = db.child("devices").get().val()[DEVICE_REGISTRATION_CODE]
+DEVICE_OWNER = device_attributes["owner"] if "owner" in device_attributes else None
+
+if DEVICE_OWNER != None:
+    print("Owner successfully retrieved.")
+else:
+    print("Owner not retrieved.")
+        
 
 def turnoff():
-    GPIO.output(PIN_17, GPIO.LOW)    # Turn OFF the LED connected to GPIO 18.
-
     # update state field in reset child to 0
-    results = db.child("users").child("a82939c4").child("devices").child("SHMS-NHjak3u7").update({"reset": 0})
+    results = db.child("users/"+DEVICE_OWNER+"/devices/"+DEVICE_REGISTRATION_CODE).update({"reset": 0})
 
-    print ('LED is off')
     return
 
 def turnon():
-    GPIO.output(PIN_17, GPIO.HIGH)    # Turn ON the LED connected to GPIO 18.
-
     # update state field in reset child to 1
-    results = db.child("users").child("a82939c4").child("devices").child("SHMS-NHjak3u7").update({"reset": 1})
-
-    print ('LED is on')
+    results = db.child("users/"+DEVICE_OWNER+"/devices/"+DEVICE_REGISTRATION_CODE).update({"reset": 1})
+    
     return
 
 def buttonDetect(channel):
@@ -53,15 +61,13 @@ def buttonDetect(channel):
         turnoff()
 
 def main():
-    global PIN_17
-    global PIN_18
     global GPIO_Chan_List
 
     # Get a reference to the auth service
     auth = firebase.auth()
 
     # Log the user in
-    user = auth.sign_in_with_email_and_password("", "")
+    user = auth.sign_in_with_email_and_password("alex@gmail.com", "password")
 
     # Get a reference to the database service
     db = firebase.database()
@@ -72,13 +78,11 @@ def main():
     #initialize state field in reset child to 0
     results = db.child("reset").set(data)
 
-    print ('Welcome to my LED demo')
+    print ('Welcome to button backend')
     GPIO.setmode(GPIO.BCM)   # use this BCM (Board GPIO number) instead of using Board Pin numbers.
     GPIO.setwarnings(False)
 
     GPIO.setup(27, GPIO.IN)  #Initialize pin 27 as an input
-    GPIO.setup(17, GPIO.OUT) #set up pin 17 as an output
-
 
     GPIO.add_event_detect(27,GPIO.BOTH,callback=buttonDetect) #detect rising and falling edge
 
