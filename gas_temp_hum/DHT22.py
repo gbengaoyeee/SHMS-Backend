@@ -2,6 +2,7 @@ import time
 import board
 import adafruit_dht
 import pyrebase
+import json
  
 # Initial the dht device, with data pin connected to:
 dhtDevice = adafruit_dht.DHT22(board.D4, use_pulseio=False)
