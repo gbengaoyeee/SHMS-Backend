@@ -1,0 +1,9 @@
+Smarty is an Internet of Things system that consists of hardware devices and a software
+application that uses sensors to detect temperature, humidity, gas levels of a specific place in a
+home or a building. A GPS component is be able to detect whether a user is within the vicinity of their home.
+The hardware components and the software application are able to communicate through a
+database. The hardware uploads data to the database while the software application
+continuously checks the database for changes in readings. Once the software reads a dangerous
+level in any of the readings, a buzzer is set off from the device, the device owner will be notified
+through the software application - giving the homeowner peace of mind knowing they can detect a
+problem in their home even before it becomes a problem.
